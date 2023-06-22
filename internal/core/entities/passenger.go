@@ -7,7 +7,7 @@ import (
 )
 
 type Passenger struct {
-	ID           uuid.UUID `gorm:"type:uuid;primary_key" json:"id"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID       uuid.UUID `gorm:"type:uuid;Column:user_id" json:"user_id"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`

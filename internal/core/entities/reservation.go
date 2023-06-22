@@ -7,7 +7,7 @@ import (
 )
 
 type Reservation struct {
-	ID          uuid.UUID    `gorm:"type:uuid;primary_key" json:"id"`                 // OrderID in other tables
+	ID          uuid.UUID    `gorm:"type:uuid;primaryKey" json:"id"`                  // OrderID in other tables
 	UserID      uuid.UUID    `gorm:"type:uuid;Column:user_id" json:"user_id"`         // ID in User
 	FlightID    uuid.UUID    `gorm:"type:uuid;Column:flight_id" json:"flight_id"`     // ID in Flight
 	Passengers  []uuid.UUID  `gorm:"type:uuid[];Column:passengers" json:"passengers"` // List of passengers

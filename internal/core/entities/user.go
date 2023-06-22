@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID          uuid.UUID   `gorm:"type:uuid;primary_key" json:"id"` // UserID in other Tables
+	ID          uuid.UUID   `gorm:"type:uuid;primaryKey" json:"id"` // UserID in other Tables
 	Name        string      `json:"name"`
 	DateOfBirth time.Time   `json:"date_of_birth"`
 	PhoneNumber string      `json:"phone_number"`
