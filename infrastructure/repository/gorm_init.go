@@ -3,7 +3,7 @@ package repositories
 import (
 	"fmt"
 
-	"github.com/cyneptic/letsgo/internal/core/entities"
+	"github.com/cyneptic/letsgo/internal/domain/entities"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
