@@ -13,7 +13,7 @@ type UserServiceContract interface {
 	LoginHandler(user entities.User) (string, error)
 	GetAllUserPassengers(id string) ([]entities.Passenger, error)
 	AddPassengersToUser(userId string, passenger entities.Passenger) error
-	Logout(token string) *redis.StatusCmd
+	Logout(token string) error
 }
 
 type InMemoryServiceContracts interface {

@@ -26,6 +26,7 @@ func NewHandler(svc ports.UserServiceContract, e *echo.Echo) *Handler {
 
 func (h *Handler) SetupRoutes() {
 	h.echo.POST("/login", h.login)
+	h.echo.POST("/logout" , h.logout)
 	h.echo.POST("/register", h.register)
 	h.echo.GET("/passengers/:userId", h.giveAllPassenger, middleware.AuthMiddleware)
 	h.echo.POST("/passengers", h.addPassengersToUser, middleware.AuthMiddleware)
@@ -37,13 +38,14 @@ func (h *Handler) login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Invalid request body")
 	}
 
-	token, err := h.svc.LoginHandler(*user)
+	token, _ := h.svc.LoginHandler(*user)
 
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"Error": "Invalid Email Or Password",
-		})
-	}
+	// if err != nil {
+	// 	return c.JSON(http.StatusBadRequest, map[string]string{
+	// 		"Error": "Invalid Email Or Password",
+	// 	})
+	// }
+	
 
 	return c.JSON(200, token)
 }
@@ -73,7 +75,7 @@ func (h *Handler) logout(c echo.Context) error {
 	err := h.svc.Logout(authHeader)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "unable to log out"})
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"error": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, "logout successful")

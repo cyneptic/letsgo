@@ -2,7 +2,7 @@ package ports
 
 import (
 	"github.com/cyneptic/letsgo/internal/core/entities"
-	"github.com/go-redis/redis/v8"
+	
 	"github.com/google/uuid"
 )
 
@@ -18,7 +18,7 @@ type UserRepositoryContracts interface {
 }
 
 type InMemoryRespositoryContracts interface {
-	AddToken(token string) *redis.StatusCmd
-	RevokeToken(token string) *redis.StatusCmd
+	AddToken(token string) error
+	RevokeToken(token string) error
 	TokenReceiver(token string) (string, error)
 }

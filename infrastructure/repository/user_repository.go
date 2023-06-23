@@ -3,11 +3,12 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"strings"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
-	"github.com/go-redis/redis/v8"
+	
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,7 @@ func (p *Postgres) AddUser(user entities.User) error {
 	return result.Error
 }
 func (p *Postgres) LoginHandler(email string) (*entities.User, error) {
+
 	var fundedUser entities.User
 	if err := p.db.Where("email = ?", email).First(&fundedUser).Error; err != nil {
 		return nil, err
@@ -66,15 +68,17 @@ func (p *Postgres) AddPassengerToUser(userId string, passengerId uuid.UUID) erro
 }
 
 // redis
-func (r *RedisDB) AddToken(token string) *redis.StatusCmd {
-	ctx := context.Background()
-	err := r.client.Set(ctx, token, true, 0)
+func (r *RedisDB) AddToken(token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := r.client.Set(ctx, token, true, 0).Err()
 	return err
 
 }
-func (r *RedisDB) RevokeToken(token string) *redis.StatusCmd {
-	ctx := context.Background()
-	err := r.client.Set(ctx, token, false, 0)
+func (r *RedisDB) RevokeToken(token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := r.client.Set(ctx, token, false, 0).Err()
 	return err
 }
 

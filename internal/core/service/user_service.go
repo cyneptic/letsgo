@@ -6,7 +6,7 @@ import (
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/cyneptic/letsgo/internal/core/ports"
-	"github.com/go-redis/redis/v8"
+	
 )
 
 // خود توابع سرویس
@@ -50,17 +50,18 @@ func (u *UserService) LoginHandler(user entities.User) (string, error) {
 	foundedUser, err := u.db.LoginHandler(email)
 
 	if err != nil {
-
 		return "", err
 	}
 	if foundedUser.Password != password {
 		err := errors.New("email or password mismatch")
 		return "", err
 	}
-	token := GenerateToken(foundedUser.ID, foundedUser.Email, foundedUser.Name)
+	token := GenerateToken(foundedUser.ID)
+	
 	u.redis.AddToken(token)
 	return token, nil
 }
+
 func (u *UserService) GetAllUserPassengers(id string) ([]entities.Passenger, error) {
 	passengers, err := u.db.GetAllUserPassengers(id)
 
@@ -89,8 +90,9 @@ func (u *UserService) AddToken(token string) {
 		log.Fatal(err)
 	}
 }
-func (u *UserService) Logout(token string) *redis.StatusCmd {
+func (u *UserService) Logout(token string) error {
 	err := u.redis.RevokeToken(token)
+	
 	return err
 }
 func (u *UserService) TokenReceiver(token string) (string, error) {
