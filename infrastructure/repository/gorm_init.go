@@ -8,6 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type GORM struct {
+	db *gorm.DB
+}
+
 func GormInit() (*gorm.DB, error) {
 	host := "localhost"      // Ideal situation this would go in a env file
 	user := "postgres"       // Ideal situation this would go in a env file
@@ -26,4 +30,9 @@ func GormInit() (*gorm.DB, error) {
 		fmt.Println(err)
 	}
 	return database, nil
+}
+
+func NewGormDatabase() *GORM {
+	db, _ := GormInit()
+	return &GORM{db: db}
 }
