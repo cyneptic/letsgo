@@ -60,3 +60,39 @@ func (pc *FlightProviderClient) RequestFlights(source, destination, departure st
 	}
 	return flights, nil
 }
+
+func (pc *FlightProviderClient) RequestFlight(id string) (entities.Flight, error) {
+	var flight entities.Flight
+	u, err := url.Parse(flightProviderHost + flightProviderEndpoint + "/" + id)
+	if err != nil {
+		return flight, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return flight, err
+
+		resp, err := pc.client.Do(req)
+		if err != nil {
+			return flight, err
+		}
+		defer resp.Body.Close()
+
+		err = json.NewDecoder(resp.Body).Decode(&flight)
+		if err != nil {
+			return flight, err
+		}
+		return flight, nil
+	}
+	resp, err := pc.client.Do(req)
+	if err != nil {
+		return flight, err
+	}
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&flight)
+	if err != nil {
+		return flight, err
+	}
+	return flight, nil
+}

@@ -26,6 +26,7 @@ func AddFlightRoutes(e *echo.Echo) {
 	svc := service.NewFlightService(pv)
 	handler := NewFlightHandler(svc)
 	e.GET("/flights", handler.ListFlightsHandler)
+	e.GET("/flights/:id", handler.flightHandler)
 }
 
 func (h *FlightHandler) ListFlightsHandler(c echo.Context) error {
@@ -41,4 +42,13 @@ func (h *FlightHandler) ListFlightsHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, flightList)
+}
+
+func (h *FlightHandler) flightHandler(c echo.Context) error {
+	var flight entities.Flight
+	flight, err := h.svc.RequestFlight(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, flight)
 }
