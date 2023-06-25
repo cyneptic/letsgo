@@ -3,7 +3,7 @@ package ports
 import (
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	
-	"github.com/google/uuid"
+
 )
 
 // اینترفیس دیتابیس هستش
@@ -14,7 +14,7 @@ type UserRepositoryContracts interface {
 	LoginHandler(email string) (*entities.User, error)
 	GetAllUserPassengers(id string) ([]entities.Passenger, error)
 	AddPassengers(passenger entities.Passenger) error
-	AddPassengerToUser(userId string, passengerId uuid.UUID) error
+	AddPassengerToUser(userId string, passengerId entities.Passenger) error
 }
 
 type InMemoryRespositoryContracts interface {

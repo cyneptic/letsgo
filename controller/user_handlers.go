@@ -2,13 +2,14 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
 	// repositories "github.com/cyneptic/letsgo/infrastructure/repository"
+	"github.com/cyneptic/letsgo/controller/middleware"
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/cyneptic/letsgo/internal/core/ports"
 	"github.com/google/uuid"
 	_ "github.com/google/uuid"
-	"github.com/cyneptic/letsgo/controller/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,10 +27,16 @@ func NewHandler(svc ports.UserServiceContract, e *echo.Echo) *Handler {
 
 func (h *Handler) SetupRoutes() {
 	h.echo.POST("/login", h.login)
-	h.echo.POST("/logout" , h.logout)
+	h.echo.POST("/logout", h.logout)
 	h.echo.POST("/register", h.register)
-	h.echo.GET("/passengers/:userId", h.giveAllPassenger, middleware.AuthMiddleware)
-	h.echo.POST("/passengers", h.addPassengersToUser, middleware.AuthMiddleware)
+	h.echo.GET("/passengers", h.giveAllPassenger, middleware.AuthMiddleware)
+	h.echo.GET("/test", h.test, middleware.AuthMiddleware)
+	h.echo.POST("/passengers", h.addPassengersToUser , middleware.AuthMiddleware)
+}
+func (h *Handler) test(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "test",
+	})
 }
 
 func (h *Handler) login(c echo.Context) error {
@@ -38,14 +45,13 @@ func (h *Handler) login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Invalid request body")
 	}
 
-	token, _ := h.svc.LoginHandler(*user)
+	token, err := h.svc.LoginHandler(*user)
 
-	// if err != nil {
-	// 	return c.JSON(http.StatusBadRequest, map[string]string{
-	// 		"Error": "Invalid Email Or Password",
-	// 	})
-	// }
-	
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"Error": "Invalid Email Or Password",
+		})
+	}
 
 	return c.JSON(200, token)
 }
@@ -53,14 +59,21 @@ func (h *Handler) login(c echo.Context) error {
 func (h *Handler) register(c echo.Context) error {
 
 	newUser := new(entities.User)
-	if err := c.Bind(newUser); err != nil {
-		return c.JSON(http.StatusBadRequest, "Invalid request body")
+
+	newUser.ID = uuid.New()
+	newUser.CreatedAt = time.Now()
+	if err := c.Bind(&newUser); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body",
+		})
 	}
 
 	err := h.svc.AddUser(*newUser)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body",
+		})
 	}
 	return c.JSON(200, map[string]interface{}{
 		"newUser": newUser,
@@ -82,7 +95,7 @@ func (h *Handler) logout(c echo.Context) error {
 }
 
 func (h *Handler) giveAllPassenger(c echo.Context) error {
-	userId := c.Param("userId")
+	userId := c.Get("id").(string)
 
 	passengers, err := h.svc.GetAllUserPassengers(userId)
 
@@ -95,21 +108,20 @@ func (h *Handler) giveAllPassenger(c echo.Context) error {
 
 func (h *Handler) addPassengersToUser(c echo.Context) error {
 
-	userId := c.Get("id").(string)
+	
 	passenger := new(entities.Passenger)
+	userId := c.Get("id").(string)
+	passenger.ID = uuid.New()
+	passenger.UserID = uuid.MustParse(userId)
+	passenger.CreatedAt = time.Now()
 
 	if err := c.Bind(&passenger); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	passenger.UserID = uuid.MustParse(userId)
-
 	err := h.svc.AddPassengersToUser(userId, *passenger)
-
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-
-	return c.JSON(http.StatusOK, "passenger added successfully")
+	return c.JSON(http.StatusOK, "add passenger successfully")
 
 }

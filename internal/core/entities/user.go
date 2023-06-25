@@ -11,9 +11,9 @@ type User struct {
 	Name        string      `json:"name"`
 	DateOfBirth time.Time   `json:"date_of_birth"`
 	PhoneNumber string      `json:"phone_number"`
-	Email       string      `json:"email"`
+	Email       string      `gorm:"unique" json:"email"`
 	Password    string      `json:"password"`
-	Passengers  []uuid.UUID `gorm:"type:uuid[];Column:passengers" json:"passengers"`
+	Passengers  []Passenger `gorm:"foreignKey:UserID" json:"passengers"`
 	CreatedAt   time.Time   `json:"created_at"`
 	ModifiedAt  time.Time   `json:"modified_at"`
 	DeletedAt   time.Time   `json:"deleted_at"`

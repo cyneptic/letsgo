@@ -58,7 +58,12 @@ func (u *UserService) LoginHandler(user entities.User) (string, error) {
 	}
 	token := GenerateToken(foundedUser.ID)
 	
-	u.redis.AddToken(token)
+	err = u.redis.AddToken(token)
+
+	if err != nil {
+		return "" , err
+	}
+
 	return token, nil
 }
 
@@ -72,11 +77,13 @@ func (u *UserService) GetAllUserPassengers(id string) ([]entities.Passenger, err
 
 }
 func (u *UserService) AddPassengersToUser(userId string, passenger entities.Passenger) error {
+	// repository for add passenger to database
 	err := u.db.AddPassengers(passenger)
 	if err != nil {
 		return err
 	}
-	err = u.db.AddPassengerToUser(userId, passenger.ID)
+	// this function recieve user Id and passenger id 
+	err = u.db.AddPassengerToUser(userId, passenger)
 
 	if err != nil {
 		return err
