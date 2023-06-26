@@ -11,7 +11,7 @@ import (
 func main() {
 	e := echo.New()
 
-	controller.AddUserRoutes(e)
+	controller.AddUserRoutes(*e)
 
 	log.Fatal(e.Start(":8080"))
 }

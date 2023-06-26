@@ -16,7 +16,7 @@ import (
 )
 
 type UserHandler struct {
-	echo *echo.Echo
+	
 	svc  ports.UserServiceContract
 }
 
@@ -27,16 +27,15 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
-func AddUserRoutes(e *echo.Echo) {
+func AddUserRoutes(e echo.Echo) {
 
 	h := NewUserHandler()
 
-	h.echo.POST("/login", h.login)
-	h.echo.POST("/logout", h.logout)
-	h.echo.POST("/register", h.register)
-	h.echo.GET("/passengers", h.giveAllPassenger, middleware.AuthMiddleware)
-
-	h.echo.POST("/passengers", h.addPassengersToUser, middleware.AuthMiddleware)
+	e.POST("/login", h.login)
+	e.POST("/logout", h.logout)
+	e.POST("/register", h.register)
+	e.GET("/passengers", h.giveAllPassenger, middleware.AuthMiddleware)
+	e.POST("/passengers", h.addPassengersToUser, middleware.AuthMiddleware)
 }
 
 // validation done
