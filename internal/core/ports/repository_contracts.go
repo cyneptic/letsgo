@@ -1,7 +1,7 @@
 package ports
 
 import (
-	"github.com/cyneptic/letsgo/internal/domain/entities"
+	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/google/uuid"
 )
 

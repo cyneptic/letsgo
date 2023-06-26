@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 

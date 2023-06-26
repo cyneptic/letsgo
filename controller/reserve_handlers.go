@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/cyneptic/letsgo/controller/validators"
-	"github.com/cyneptic/letsgo/internal/domain/entities"
-	"github.com/cyneptic/letsgo/internal/ports"
-	"github.com/docker/distribution/uuid"
+	"github.com/cyneptic/letsgo/internal/core/entities"
+	"github.com/cyneptic/letsgo/internal/core/ports"
+	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -15,14 +15,15 @@ type ReservationHandler struct {
 	svc ports.ReserveServiceContract
 }
 
-func NewReserveHasndler(svc ports.ReserveServiceContract) *ReservationHandler {
+func NewReserveHandler() *ReservationHandler {
+	svc := service.NewReserveService()
 	return &ReservationHandler{
 		svc: svc,
 	}
 }
 
-func AddReserveRoutes(e *echo.Echo, svc ports.ReserveServiceContract) {
-	handler := NewReserveHasndler(svc)
+func AddReserveRoutes(e *echo.Echo) {
+	handler := NewReserveHandler()
 	e.POST("/reserve", handler.Reserve)
 	e.GET("/reserve", handler.AllReservations)
 	e.GET("/reserve/:user_id", handler.UserReservations)

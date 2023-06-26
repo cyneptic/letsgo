@@ -104,7 +104,7 @@ func (pc *ReservationProviderClient) RequestReserve(flightId uuid.UUID, count in
 	return nil
 }
 
-func (pc *ReservationProviderClient) RequestCancellation(flightId uuid.UUID, count int) error {
+func (pc *ReservationProviderClient) RequestCancelReservation(flightId uuid.UUID, count int) error {
 	// generate request payload
 	payload, err := json.Marshal(ReserveRequest{
 		Action: "cancel",

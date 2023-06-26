@@ -4,8 +4,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cyneptic/letsgo/internal/domain/entities"
-	"github.com/cyneptic/letsgo/internal/ports"
+	"github.com/cyneptic/letsgo/infrastructure/provider"
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
+	"github.com/cyneptic/letsgo/internal/core/entities"
+	"github.com/cyneptic/letsgo/internal/core/ports"
 	"github.com/google/uuid"
 )
 
@@ -18,11 +20,17 @@ type ReserveService struct {
 	pv ports.ReserveProviderContract
 }
 
-func NewReserveService(db ports.ReserveRepositoryContract, pv ports.ReserveProviderContract) *ReserveService {
+func NewReserveService() *ReserveService {
+	repo := repositories.NewGormDatabase()
+	pv := provider.NewReservationProviderClient("http://localhost:8000/flight?id=")
 	return &ReserveService{
-		db: db,
+		db: repo,
 		pv: pv,
 	}
+}
+
+func (svc *ReserveService) GetReservationByID(rId uuid.UUID) (entities.Reservation, error) {
+	return svc.db.GetReservationByID(rId)
 }
 
 func (svc *ReserveService) CancelReservation(rId uuid.UUID) error {

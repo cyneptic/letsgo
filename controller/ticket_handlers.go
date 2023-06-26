@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/cyneptic/letsgo/internal/ports"
+	"github.com/cyneptic/letsgo/internal/core/ports"
 	"github.com/labstack/echo/v4"
 )
 

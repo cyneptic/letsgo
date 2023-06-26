@@ -1,43 +1,27 @@
-package repositories_test
+package service_test
 
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/entities"
+	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func generateFakeReservation(email string) entities.Reservation {
-	return entities.Reservation{
-		ID:         uuid.New(),
-		UserID:     uuid.New(),
-		FlightID:   uuid.New(),
-		Passengers: []uuid.UUID{},
-		ContactInfo: &entities.ContactInfo{
-			Email:       email,
-			PhoneNumber: "09121234567",
-		},
-		CreatedAt: time.Now(),
-	}
-}
+func TestAddReservationService(t *testing.T) {
+	svc := service.NewReserveService()
 
-func TestAddReservationGorm(t *testing.T) {
-	g := repositories.NewGormDatabase()
-
-	fakeR := generateFakeReservation("TestEmail@letsgo.com")
-	err := g.AddReservation(fakeR)
+	flightId, userId, pIds := uuid.New(), uuid.New(), []uuid.UUID{uuid.New(), uuid.New()}
+	r, err := svc.Reserve(flightId, userId, pIds)
 
 	assert.NoError(t, err)
+	res, err := svc.GetReservationByID(r)
+	assert.NoError(t, err)
 
-	var result entities.Reservation
-	q := g.DB.Where("email = ? ", "TestEmail@letsgo.com").First(&result)
-	assert.NoError(t, q.Error)
-
-	assert.Equal(t, []uuid.UUID{result.FlightID, result.ID, result.UserID}, []uuid.UUID{fakeR.FlightID, fakeR.ID, fakeR.UserID})
+	assert.Equal(res, r, res.ID)
 
 }
 
