@@ -8,14 +8,20 @@ import (
 	// "strings"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
-	
-	
+	"gorm.io/gorm"
 )
 
-func (p *Postgres) IsUserAlreadyRegisters(user entities.User) int64 {
+func (p *Postgres) IsUserAlreadyRegisters(user entities.User) (int64, error) {
 	res := p.db.Where("email = ?", user.Email).First(&user)
-	return res.RowsAffected
+	if res.Error != nil {
+		if res.Error == gorm.ErrRecordNotFound {
+			return 0, nil // User not found, no error
+		}
+		return 0, res.Error // Other error occurred
+	}
+	return res.RowsAffected , nil
 }
+
 func (p *Postgres) AddUser(user entities.User) error {
 	result := p.db.Create(user)
 	return result.Error

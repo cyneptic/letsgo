@@ -4,9 +4,9 @@ import (
 	"errors"
 	"log"
 
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/cyneptic/letsgo/internal/core/ports"
-	
 )
 
 // خود توابع سرویس
@@ -16,31 +16,42 @@ type UserService struct {
 	redis ports.InMemoryRespositoryContracts
 }
 
-func NewUserService(db ports.UserRepositoryContracts, redis ports.InMemoryRespositoryContracts) *UserService {
+func NewUserService() *UserService {
+	db := repositories.NewPostgres()
+	redis := repositories.RedisInit()
 	return &UserService{
 		db:    db,
 		redis: redis,
 	}
 }
 
-func (u *UserService) IsUserAlreadyRegisters(newUser entities.User) bool {
-	res := u.db.IsUserAlreadyRegisters(newUser)
-	if res > 0 {
-		return true
+func (u *UserService) IsUserAlreadyRegisters(newUser entities.User) (bool , error) {
+	res , err := u.db.IsUserAlreadyRegisters(newUser)
+
+	if err != nil { 
+		return false , err
 	}
-	return false
+
+	if res > 0 {
+		return true , nil
+	}
+	return false , nil
 }
 
 func (u *UserService) AddUser(newUser entities.User) error {
 
-	isUserAlreadyExist := u.IsUserAlreadyRegisters(newUser)
+	isUserAlreadyExist , err := u.IsUserAlreadyRegisters(newUser)
+
+	if err != nil { 
+		return err
+	}
 
 	if isUserAlreadyExist == true {
 		err := errors.New("User already registered")
 		return err
 	}
 
-	err := u.db.AddUser(newUser)
+	err = u.db.AddUser(newUser)
 	return err
 }
 func (u *UserService) LoginHandler(user entities.User) (string, error) {

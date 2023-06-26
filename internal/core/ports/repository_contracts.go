@@ -9,7 +9,7 @@ import (
 // اینترفیس دیتابیس هستش
 
 type UserRepositoryContracts interface {
-	IsUserAlreadyRegisters(user entities.User) int64
+	IsUserAlreadyRegisters(user entities.User) (int64 , error)
 	AddUser(user entities.User) error
 	LoginHandler(email string) (*entities.User, error)
 	GetAllUserPassengers(id string) ([]entities.Passenger, error)
