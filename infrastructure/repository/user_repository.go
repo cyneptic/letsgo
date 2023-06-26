@@ -2,26 +2,34 @@ package repositories
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
+	"time"
 
-	"strings"
+	// "strings"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
-	"github.com/go-redis/redis/v8"
-	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-func (p *Postgres) IsUserAlreadyRegisters(user entities.User) int64 {
+func (p *Postgres) IsUserAlreadyRegisters(user entities.User) (int64, error) {
 	res := p.db.Where("email = ?", user.Email).First(&user)
-	return res.RowsAffected
+	if res.Error != nil {
+		if res.Error == gorm.ErrRecordNotFound {
+			return 0, nil // User not found, no error
+		}
+		return 0, res.Error // Other error occurred
+	}
+	return res.RowsAffected , nil
 }
+
 func (p *Postgres) AddUser(user entities.User) error {
 	result := p.db.Create(user)
 	return result.Error
 }
 func (p *Postgres) LoginHandler(email string) (*entities.User, error) {
+
 	var fundedUser entities.User
-	if err := p.db.Where("email = ?", email).First(&fundedUser).Error; err != nil {
+	if err := p.db.Where("email = ? ", email).First(&fundedUser).Error; err != nil {
 		return nil, err
 	}
 	return &fundedUser, nil
@@ -38,27 +46,15 @@ func (p *Postgres) AddPassengers(passenger entities.Passenger) error {
 	result := p.db.Create(passenger)
 	return result.Error
 }
-func (p *Postgres) AddPassengerToUser(userId string, passengerId uuid.UUID) error {
+func (p *Postgres) AddPassengerToUser(userId string, passenger entities.Passenger) error {
 	user := entities.User{}
 	if err := p.db.Where("id = ?", userId).First(&user).Error; err != nil {
 		return err
 	}
-	passengerUUID := passengerId.String()
 
-	// Convert the Passengers slice to a slice of strings
-	passengerStrings := make([]string, len(user.Passengers))
-	for i, passenger := range user.Passengers {
-		passengerStrings[i] = passenger.String()
-	}
+	user.Passengers = append(user.Passengers, passenger)
 
-	// Append passengerId to the Passengers slice
-	passengerStrings = append(passengerStrings, passengerUUID)
-
-	// Convert the Passengers slice to a PostgreSQL array literal
-	passengerArray := fmt.Sprintf("{%s}", strings.Join(passengerStrings, ","))
-
-	// Update the Passengers field in the database
-	if err := p.db.Model(&user).Update("Passengers", passengerArray).Error; err != nil {
+	if err := p.db.Save(&user).Error; err != nil {
 		return err
 	}
 
@@ -66,15 +62,20 @@ func (p *Postgres) AddPassengerToUser(userId string, passengerId uuid.UUID) erro
 }
 
 // redis
-func (r *RedisDB) AddToken(token string) *redis.StatusCmd {
-	ctx := context.Background()
-	err := r.client.Set(ctx, token, true, 0)
+func (r *RedisDB) AddToken(token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := r.client.Set(ctx, token, true, 0).Err()
+	if err != nil {
+        panic(err)
+    }
 	return err
 
 }
-func (r *RedisDB) RevokeToken(token string) *redis.StatusCmd {
-	ctx := context.Background()
-	err := r.client.Set(ctx, token, false, 0)
+func (r *RedisDB) RevokeToken(token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := r.client.Set(ctx, token, false, 0).Err()
 	return err
 }
 

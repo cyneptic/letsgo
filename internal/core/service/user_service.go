@@ -4,9 +4,9 @@ import (
 	"errors"
 	"log"
 
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/cyneptic/letsgo/internal/core/ports"
-	"github.com/go-redis/redis/v8"
 )
 
 // خود توابع سرویس
@@ -16,31 +16,42 @@ type UserService struct {
 	redis ports.InMemoryRespositoryContracts
 }
 
-func NewUserService(db ports.UserRepositoryContracts, redis ports.InMemoryRespositoryContracts) *UserService {
+func NewUserService() *UserService {
+	db := repositories.NewPostgres()
+	redis := repositories.RedisInit()
 	return &UserService{
 		db:    db,
 		redis: redis,
 	}
 }
 
-func (u *UserService) IsUserAlreadyRegisters(newUser entities.User) bool {
-	res := u.db.IsUserAlreadyRegisters(newUser)
-	if res > 0 {
-		return true
+func (u *UserService) IsUserAlreadyRegisters(newUser entities.User) (bool , error) {
+	res , err := u.db.IsUserAlreadyRegisters(newUser)
+
+	if err != nil { 
+		return false , err
 	}
-	return false
+
+	if res > 0 {
+		return true , nil
+	}
+	return false , nil
 }
 
 func (u *UserService) AddUser(newUser entities.User) error {
 
-	isUserAlreadyExist := u.IsUserAlreadyRegisters(newUser)
+	isUserAlreadyExist , err := u.IsUserAlreadyRegisters(newUser)
+
+	if err != nil { 
+		return err
+	}
 
 	if isUserAlreadyExist == true {
 		err := errors.New("User already registered")
 		return err
 	}
 
-	err := u.db.AddUser(newUser)
+	err = u.db.AddUser(newUser)
 	return err
 }
 func (u *UserService) LoginHandler(user entities.User) (string, error) {
@@ -50,17 +61,23 @@ func (u *UserService) LoginHandler(user entities.User) (string, error) {
 	foundedUser, err := u.db.LoginHandler(email)
 
 	if err != nil {
-
 		return "", err
 	}
 	if foundedUser.Password != password {
 		err := errors.New("email or password mismatch")
 		return "", err
 	}
-	token := GenerateToken(foundedUser.ID, foundedUser.Email, foundedUser.Name)
-	u.redis.AddToken(token)
+	token := GenerateToken(foundedUser.ID)
+	
+	err = u.redis.AddToken(token)
+
+	if err != nil {
+		return "" , err
+	}
+
 	return token, nil
 }
+
 func (u *UserService) GetAllUserPassengers(id string) ([]entities.Passenger, error) {
 	passengers, err := u.db.GetAllUserPassengers(id)
 
@@ -71,11 +88,13 @@ func (u *UserService) GetAllUserPassengers(id string) ([]entities.Passenger, err
 
 }
 func (u *UserService) AddPassengersToUser(userId string, passenger entities.Passenger) error {
+	// repository for add passenger to database
 	err := u.db.AddPassengers(passenger)
 	if err != nil {
 		return err
 	}
-	err = u.db.AddPassengerToUser(userId, passenger.ID)
+	// this function recieve user Id and passenger id 
+	err = u.db.AddPassengerToUser(userId, passenger)
 
 	if err != nil {
 		return err
@@ -89,8 +108,9 @@ func (u *UserService) AddToken(token string) {
 		log.Fatal(err)
 	}
 }
-func (u *UserService) Logout(token string) *redis.StatusCmd {
+func (u *UserService) Logout(token string) error {
 	err := u.redis.RevokeToken(token)
+	
 	return err
 }
 func (u *UserService) TokenReceiver(token string) (string, error) {
