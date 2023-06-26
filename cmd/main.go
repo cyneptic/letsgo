@@ -4,9 +4,7 @@ import (
 	controllers "github.com/cyneptic/letsgo/controller"
 	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"log"
-
 	"github.com/cyneptic/letsgo/controller/middleware"
-	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/labstack/echo/v4"
 )
 
