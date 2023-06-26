@@ -15,16 +15,16 @@ type FlightHandler struct {
 	svc ports.FlightServiceContract
 }
 
-func NewFlightHandler(svc ports.FlightServiceContract) *FlightHandler {
+func NewFlightHandler() *FlightHandler {
+	pv := provider.NewFlightProviderClient()
+	svc := service.NewFlightService(pv)
 	return &FlightHandler{
 		svc: svc,
 	}
 }
 
 func AddFlightRoutes(e *echo.Echo) {
-	pv := provider.NewFlightProviderClient()
-	svc := service.NewFlightService(pv)
-	handler := NewFlightHandler(svc)
+	handler := NewFlightHandler()
 	e.GET("/flights", handler.ListFlightsHandler)
 	e.GET("/flights/:id", handler.flightHandler)
 }

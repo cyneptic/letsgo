@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type GORM struct {
+type PostGres struct {
 	db *gorm.DB
 }
 
@@ -32,7 +32,7 @@ func GormInit() (*gorm.DB, error) {
 	return database, nil
 }
 
-func NewGormDatabase() *GORM {
+func NewGormDatabase() *PostGres {
 	db, _ := GormInit()
-	return &GORM{db: db}
+	return &PostGres{db: db}
 }
