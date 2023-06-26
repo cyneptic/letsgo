@@ -3,13 +3,14 @@ package main
 import (
 	"log"
 
-	repositories "github.com/cyneptic/letsgo/internal/infrastructure/repository"
+	"github.com/cyneptic/letsgo/controller"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	_ = repositories.NewGormDatabase()
+	// _ = repositories.NewGormDatabase()
 	e := echo.New()
+	controller.RegisterFlightRoute(e)
 
 	log.Fatal(e.Start(":8080"))
 }
