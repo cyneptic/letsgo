@@ -8,6 +8,10 @@ import (
 	"github.com/cyneptic/letsgo/internal/core/entities"
 )
 
+const (
+	SUCCESS_STATUS_CODE string = "0"
+)
+
 type Return struct {
 	Text string `xml:",chardata"`
 }

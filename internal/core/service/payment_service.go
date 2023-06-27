@@ -91,7 +91,7 @@ func (p *PaymentService) CreateNewPayment(reservationId, payerID string) (string
 	result := strings.Split(envelope.Body.BpPayRequestResponse.Return.Text, ",")
 
 	code := result[0]
-	if code == "0" {
+	if code == SUCCESS_STATUS_CODE {
 		refID := result[1]
 		redirectLink := fmt.Sprintf(`<form name="myform" action="https://sandbox.banktest.ir/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat" method="POST">
 		<input type="hidden" id="RefId" name="RefId" value="%s">
@@ -148,7 +148,7 @@ func (p *PaymentService) VerifyPayment(PayerID, RefId, orderId, SaleReferenceId 
 	xml.Unmarshal(body, &envelope)
 
 	code := strings.Split(envelope.Body.BpVerifyRequestResponse.Return.Text, ",")[0]
-	if code == "0" {
+	if code == SUCCESS_STATUS_CODE {
 		err := p.gormDb.IssueATicket(RefId)
 		if err != nil {
 			return false, err

@@ -3,10 +3,9 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"net/http"
-
 	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type PaymentHandlers struct {
@@ -30,8 +29,7 @@ func (p *PaymentHandlers) CreatePayment(e echo.Context) error {
 	if reservationId == "" {
 		return echo.ErrBadRequest
 	}
-	// id := e.Get("id").(string)
-	id := "4324902342384"
+	id := e.Get("id").(string)
 	redirectLink, err := p.srv.CreateNewPayment(reservationId, id)
 	if err != nil {
 		return errors.New("error")
@@ -42,14 +40,13 @@ func (p *PaymentHandlers) CreatePayment(e echo.Context) error {
 
 func (p *PaymentHandlers) VerifyPayment(e echo.Context) error {
 	refID := e.FormValue("RefId")
-	resCode := e.FormValue("ResCode")
+	paymentStatus := e.FormValue("ResCode")
 	SaleReferenceId := e.FormValue("SaleReferenceId")
-	if resCode != "0" {
+	if paymentStatus != service.SUCCESS_STATUS_CODE {
 		return http.ErrAbortHandler
 	}
 	reservationId := e.FormValue("SaleOrderId")
-	// id := e.Get("id").(string)
-	id := "4324902342384"
+	id := e.Get("id").(string)
 	result, err := p.srv.VerifyPayment(id, refID, reservationId, SaleReferenceId)
 	if err != nil {
 		return err
