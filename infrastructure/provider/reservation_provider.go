@@ -16,6 +16,10 @@ var (
 	ErrReservationFailed = errors.New("Failed to make reservation, Error from provider")
 )
 
+const (
+	providerAddress = "http://localhost:8000/"
+)
+
 type ReservationProviderClient struct {
 	client  *http.Client
 	address string
@@ -26,18 +30,18 @@ type ReserveRequest struct {
 	Count  int    `json:"count"`
 }
 
-func NewReservationProviderClient(address string) *ReservationProviderClient {
+func NewReservationProviderClient() *ReservationProviderClient {
 	tr := &http.Transport{}
 	cl := &http.Client{Transport: tr}
 
 	return &ReservationProviderClient{
 		client:  cl,
-		address: address,
+		address: providerAddress,
 	}
 }
 
 func (pc *ReservationProviderClient) RequestFlightByID(flightId uuid.UUID) (entities.Flight, error) {
-	resp, err := pc.client.Get(pc.address + "/flight/?id=" + flightId.String())
+	resp, err := pc.client.Get(pc.address + "/flights/?id=" + flightId.String())
 	if err != nil {
 		return entities.Flight{}, err
 	}

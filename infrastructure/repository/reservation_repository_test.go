@@ -16,7 +16,7 @@ func generateFakeReservation(email string) entities.Reservation {
 		ID:         uuid.New(),
 		UserID:     uuid.New(),
 		FlightID:   uuid.New(),
-		Passengers: []uuid.UUID{},
+		Passengers: entities.CustomUUIDArray{uuid.New()},
 		ContactInfo: &entities.ContactInfo{
 			Email:       email,
 			PhoneNumber: "09121234567",
@@ -25,8 +25,35 @@ func generateFakeReservation(email string) entities.Reservation {
 	}
 }
 
-func TestAddReservationGorm(t *testing.T) {
-	g := repositories.NewGormDatabase()
+func generateFakeMultiPersonReservation() entities.Reservation {
+	var passengers entities.CustomUUIDArray
+	for i := 0; i < 5; i++ {
+		passengers = append(passengers, uuid.New())
+	}
+	return entities.Reservation{
+		ID:         uuid.New(),
+		UserID:     uuid.New(),
+		FlightID:   uuid.New(),
+		Passengers: passengers,
+		ContactInfo: &entities.ContactInfo{
+			Email:       "test@test.com",
+			PhoneNumber: "09121234567",
+		},
+		CreatedAt: time.Now(),
+	}
+}
+
+func TestAddReservationForMultiplePassengers(t *testing.T) {
+	g := repositories.NewPGDatabase()
+
+	fakeR := generateFakeMultiPersonReservation()
+	err := g.AddReservation(fakeR)
+
+	assert.NoError(t, err)
+}
+
+func TestAddReservation(t *testing.T) {
+	g := repositories.NewPGDatabase()
 
 	fakeR := generateFakeReservation("TestEmail@letsgo.com")
 	err := g.AddReservation(fakeR)
@@ -42,7 +69,7 @@ func TestAddReservationGorm(t *testing.T) {
 }
 
 func TestDeleteReservation(t *testing.T) {
-	g := repositories.NewGormDatabase()
+	g := repositories.NewPGDatabase()
 	g.DB.Where("email = ?", "TestEmail@letsgo.com").Delete(entities.Reservation{})
 
 	var result entities.Reservation
@@ -52,7 +79,7 @@ func TestDeleteReservation(t *testing.T) {
 }
 
 func TestGetAllReservations(t *testing.T) {
-	g := repositories.NewGormDatabase()
+	g := repositories.NewPGDatabase()
 
 	for i := 0; i < 5; i++ {
 		err := g.AddReservation(generateFakeReservation("TestMultipleReservations@letsgo.com"))

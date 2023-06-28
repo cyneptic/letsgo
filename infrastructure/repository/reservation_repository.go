@@ -5,17 +5,7 @@ import (
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
-
-type PGRepository struct {
-	DB *gorm.DB
-}
-
-func NewGormDatabase() *PGRepository {
-	db, _ := GormInit()
-	return &PGRepository{DB: db}
-}
 
 func (r *PGRepository) CancelTicket(ticketId uuid.UUID) error {
 	var res entities.Ticket
@@ -63,4 +53,9 @@ func (r *PGRepository) AddReservation(reservation entities.Reservation) error {
 		return q.Error
 	}
 	return nil
+}
+
+// should be replace with proper functionn
+func (r *PGRepository) GetUserByID(userId uuid.UUID) (entities.User, error) {
+	return entities.User{}, nil
 }

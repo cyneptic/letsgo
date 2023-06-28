@@ -21,7 +21,7 @@ type ReserveService struct {
 }
 
 func NewReserveService() *ReserveService {
-	repo := repositories.NewGormDatabase()
+	repo := repositories.NewPGDatabase()
 	pv := provider.NewReservationProviderClient("http://localhost:8000/flight?id=")
 	return &ReserveService{
 		db: repo,
