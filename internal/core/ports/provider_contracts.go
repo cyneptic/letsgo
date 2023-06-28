@@ -12,5 +12,5 @@ type ReserveProviderContract interface {
 }
 
 type SortFilterProviderContract interface {
-	RequestFlight() ([]entities.Flight, error)
+	RequestFlight(source, destination, departure string) ([]entities.Flight, error)
 }

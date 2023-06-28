@@ -2,10 +2,17 @@ package provider
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
+)
+
+const (
+	flightProviderHost     = "http://localhost:8000"
+	flightProviderEndpoint = "/flights"
+	httpTimeout            = 5 * time.Second
 )
 
 type SortFilterProviderClient struct {
@@ -15,28 +22,41 @@ type SortFilterProviderClient struct {
 
 func NewSortFilterProviderClient(address string) *SortFilterProviderClient {
 	tr := &http.Transport{}
-	cl := &http.Client{Transport: tr}
+	cl := &http.Client{
+		Transport: tr,
+		Timeout:   httpTimeout,
+	}
 
 	return &SortFilterProviderClient{
-		client:  cl,
-		address: address,
+		client: cl,
 	}
 }
 
-func (pc *SortFilterProviderClient) RequestFlight() ([]entities.Flight, error) {
-	resp, err := pc.client.Get(pc.address + "/flights?source=tehran&destination=sari&departing=2023-07-29")
+func (pc *SortFilterProviderClient) RequestFlight(source, destination, departure string) ([]entities.Flight, error) {
+	u, err := url.Parse(flightProviderHost + flightProviderEndpoint)
 	if err != nil {
-		return []entities.Flight{}, err
+		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	q := u.Query()
+	q.Set("source", source)
+	q.Set("destination", destination)
+	q.Set("departing", departure)
+	u.RawQuery = q.Encode()
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
-		return []entities.Flight{}, err
-	}
-	var response []entities.Flight
-	if err = json.Unmarshal(body, &response); err != nil {
-		return []entities.Flight{}, err
+		return nil, err
 	}
 
-	return response, nil
+	resp, err := pc.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var flights []entities.Flight
+	err = json.NewDecoder(resp.Body).Decode(&flights)
+	if err != nil {
+		return nil, err
+	}
+	return flights, nil
 }

@@ -5,6 +5,6 @@ import (
 )
 
 type SortFilterServiceContract interface {
-	FilterFlightList(PlaneType string, t1 int, t2 int, RemainSeat string) []entities.Flight
-	SortFlightList(Desc, Sortby string) []entities.Flight
+	FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat string) []entities.Flight
+	SortFlightList(source, destination, departure, Desc, Sortby string) []entities.Flight
 }

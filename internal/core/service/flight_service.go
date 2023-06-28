@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/cyneptic/letsgo/infrastructure/provider"
@@ -21,8 +20,8 @@ func NewFlightService() *FlightService {
 }
 
 // Todo Filter
-func (f *FlightService) FilterFlightList(PlaneType string, t1 int, t2 int, RemainSeat string) []entities.Flight {
-	flights, err := f.pv.RequestFlight()
+func (f *FlightService) FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat string) []entities.Flight {
+	flights, err := f.pv.RequestFlight(source, destination, departure)
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +43,7 @@ func (f *FlightService) FilterFlightList(PlaneType string, t1 int, t2 int, Remai
 	}
 
 	for _, flight := range remainFligtlist {
-		if flight.AircraftName == PlaneType || PlaneType == "" {
+		if flight.AirlineName == PlaneType || PlaneType == "" {
 			filteredListed = append(filteredListed, flight)
 		}
 	}
@@ -57,7 +56,6 @@ func (f *FlightService) FilterFlightList(PlaneType string, t1 int, t2 int, Remai
 				hourFilterFlight = append(hourFilterFlight, flight)
 			}
 		} else if hour >= t1 && hour <= t2 {
-			fmt.Println("im here")
 			hourFilterFlight = append(hourFilterFlight, flight)
 		}
 	}
@@ -65,8 +63,8 @@ func (f *FlightService) FilterFlightList(PlaneType string, t1 int, t2 int, Remai
 }
 
 // todo Sort
-func (f *FlightService) SortFlightList(Desc, Sortby string) []entities.Flight {
-	flights, err := f.pv.RequestFlight()
+func (f *FlightService) SortFlightList(source, destination, departure, Desc, Sortby string) []entities.Flight {
+	flights, err := f.pv.RequestFlight(source, destination, departure)
 	if err != nil {
 		panic(err)
 	}
@@ -98,7 +96,7 @@ func (f *FlightService) SortFlightList(Desc, Sortby string) []entities.Flight {
 		})
 	}
 
-	if Sortby == "dur" {
+	if Sortby == "duration" {
 		sort.Slice(sortListed, func(i, j int) bool {
 			// td1, _ := time.Parse(time.TimeOnly, sortListed[i].DepartureTime)
 			// td2, _ := time.Parse(time.TimeOnly, sortListed[j].DepartureTime)
