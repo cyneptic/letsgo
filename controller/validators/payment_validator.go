@@ -2,7 +2,7 @@ package validators
 
 import (
 	"errors"
-	"github.com/cyneptic/letsgo/internal/core/service"
+	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -28,7 +28,7 @@ func VerifyPaymentValidator(e echo.Context) error {
 	if refID == "" || SaleReferenceId == "" || reservationId == "" {
 		return errors.New("invalid payment")
 	}
-	if paymentStatus != service.SUCCESS_STATUS_CODE {
+	if paymentStatus != entities.SUCCESS_STATUS_CODE {
 		return http.ErrAbortHandler
 	}
 	_, ok := e.Get("id").(string)

@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/cyneptic/letsgo/infrastructure/provider"
 	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/ports"
@@ -49,13 +48,8 @@ func (p *PaymentService) CreateNewPayment(reservationId, payerID string) (string
 		passengers = append(passengers, calculateAgeByBirth(passenger.DateOfBirth))
 	}
 	amount := CalculatePrice(passengers, flight, reserve)
-	code, refID, err := p.gateway.CreatePayment(amount, id, payerID)
-	if code == SUCCESS_STATUS_CODE {
-		redirectLink := fmt.Sprintf(`<form name="myform" action="https://sandbox.banktest.ir/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat" method="POST">
-		<input type="hidden" id="RefId" name="RefId" value="%s">
-		</form>
-		<script type="text/javascript">window.onload = formSubmit; function formSubmit() { document.forms[0].submit(); }</script>
-		`, refID)
+	redirectLink, refID, err := p.gateway.CreatePayment(amount, id, payerID)
+	if err == nil {
 		p.redisDb.SetPaymentRequest(id, payerID, refID)
 		err := p.gormDb.CreateTempTicket(reserve, refID)
 		if err != nil {

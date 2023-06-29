@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/cyneptic/letsgo/internal/core/service"
+	"github.com/cyneptic/letsgo/internal/core/entities"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
@@ -23,7 +23,7 @@ func NewMellatGateway() *MellatGateway {
 	}
 }
 
-func (m *MellatGateway) CreatePayment(amount string, order uuid.UUID, payerID string) (status, refID string, err error) {
+func (m *MellatGateway) CreatePayment(amount string, order uuid.UUID, payerID string) (string, string, error) {
 
 	terminalID := os.Getenv("BANK_TERMINAL_ID")
 	userName := os.Getenv("BANK_USERNAME")
@@ -33,7 +33,7 @@ func (m *MellatGateway) CreatePayment(amount string, order uuid.UUID, payerID st
 	additionalData := ""
 	callBackURL := os.Getenv("BANK_CALLBACK_URL")
 	method := "POST"
-	payload := strings.NewReader(fmt.Sprintf(service.RequestXMLBody, terminalID, userName, userPassword, order.ID(), amount, localDate, localTime, additionalData, callBackURL, payerID))
+	payload := strings.NewReader(fmt.Sprintf(entities.RequestXMLBody, terminalID, userName, userPassword, order.ID(), amount, localDate, localTime, additionalData, callBackURL, payerID))
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, m.url, payload)
@@ -57,17 +57,22 @@ func (m *MellatGateway) CreatePayment(amount string, order uuid.UUID, payerID st
 		return "", "", err
 	}
 
-	var envelope service.EnvelopeRequest
+	var envelope entities.EnvelopeRequest
 	err = xml.Unmarshal(body, &envelope)
 	if err != nil {
 		return "", "", errors.New("there is error in marshaling")
 	}
 	result := strings.Split(envelope.Body.BpPayRequestResponse.Return.Text, ",")
-	if len(result) > 1 {
-
-		return result[0], result[1], nil
+	if result[0] == entities.SUCCESS_STATUS_CODE {
+		redirectLink := fmt.Sprintf(`<form name="myform" action="https://sandbox.banktest.ir/mellat/bpm.shaparak.ir/pgwchannel/startpay.mellat" method="POST">
+		<input type="hidden" id="RefId" name="RefId" value="%s">
+		</form>
+		<script type="text/javascript">window.onload = formSubmit; function formSubmit() { document.forms[0].submit(); }</script>
+		`, result[1])
+		return redirectLink, result[1], nil
 	}
-	return result[0], "", nil
+
+	return "", "", errors.New("there is an error")
 }
 
 func (m *MellatGateway) VerifyPayment(PayerID, RefId, orderId, SaleReferenceId string) (bool, error) {
@@ -76,7 +81,7 @@ func (m *MellatGateway) VerifyPayment(PayerID, RefId, orderId, SaleReferenceId s
 	userPassword := os.Getenv("BANK_USER_PASSWORD")
 	method := "POST"
 
-	payload := strings.NewReader(fmt.Sprintf(service.VerifyXMLBody, terminalID, userName, userPassword, orderId, orderId, SaleReferenceId))
+	payload := strings.NewReader(fmt.Sprintf(entities.VerifyXMLBody, terminalID, userName, userPassword, orderId, orderId, SaleReferenceId))
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, m.url, payload)
@@ -98,11 +103,11 @@ func (m *MellatGateway) VerifyPayment(PayerID, RefId, orderId, SaleReferenceId s
 
 	body, err := ioutil.ReadAll(res.Body)
 
-	var envelope service.EnvelopeVerify
+	var envelope entities.EnvelopeVerify
 	err = xml.Unmarshal(body, &envelope)
 	if err != nil {
 		return false, err
 	}
 	code := strings.Split(envelope.Body.BpVerifyRequestResponse.Return.Text, ",")[0]
-	return code == service.SUCCESS_STATUS_CODE, nil
+	return code == entities.SUCCESS_STATUS_CODE, nil
 }

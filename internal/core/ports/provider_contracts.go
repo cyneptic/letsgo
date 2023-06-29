@@ -1,9 +1,10 @@
 package ports
+
 import "github.com/cyneptic/letsgo/internal/core/entities"
 import "github.com/google/uuid"
 
 type PaymentGateWayContract interface {
-	CreatePayment(amount string, order uuid.UUID, payerID string) (status, refID string, err error)
+	CreatePayment(amount string, order uuid.UUID, payerID string) (string, string, error)
 	VerifyPayment(PayerID, RefId, orderId, SaleReferenceId string) (bool, error)
 }
 
