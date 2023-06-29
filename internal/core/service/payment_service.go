@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/cyneptic/letsgo/infrastructure/provider"
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/ports"
 	"github.com/google/uuid"
 )
@@ -13,11 +15,14 @@ type PaymentService struct {
 	gateway ports.PaymentGateWayContract
 }
 
-func NewPaymentService(redisdb ports.PaymentDbContract, gormdb ports.PaymentGormContract, gateway ports.PaymentGateWayContract) *PaymentService {
+func NewPaymentService() *PaymentService {
+	gormDb := repositories.NewGormDatabase()
+	redisDb := repositories.RedisInit()
+	paymentGateway := provider.NewMellatGateway()
 	return &PaymentService{
-		redisDb: redisdb,
-		gormDb:  gormdb,
-		gateway: gateway,
+		redisDb: redisDb,
+		gormDb:  gormDb,
+		gateway: paymentGateway,
 	}
 
 }

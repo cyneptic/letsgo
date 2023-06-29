@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cyneptic/letsgo/controller/validators"
-	"github.com/cyneptic/letsgo/infrastructure/provider"
-	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -16,10 +14,7 @@ type PaymentHandlers struct {
 }
 
 func NewPaymentHandler() *PaymentHandlers {
-	gormDb := repositories.NewGormDatabase()
-	redisDb := repositories.RedisInit()
-	paymentGateway := provider.NewMellatGateway()
-	srvPayment := service.NewPaymentService(redisDb, gormDb, paymentGateway)
+	srvPayment := service.NewPaymentService()
 	return &PaymentHandlers{
 		srv: *srvPayment,
 	}
