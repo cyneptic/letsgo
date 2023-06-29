@@ -9,6 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type PostGres struct {
+	db *gorm.DB
+}
+
 func GormInit() (*gorm.DB, error) {
 	host := os.Getenv("PG_HOST")
 	user := os.Getenv("PG_USER")
@@ -27,4 +31,9 @@ func GormInit() (*gorm.DB, error) {
 		fmt.Println(err)
 	}
 	return database, nil
+}
+
+func NewGormDatabase() *PostGres {
+	db, _ := GormInit()
+	return &PostGres{db: db}
 }

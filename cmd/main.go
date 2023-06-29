@@ -9,6 +9,8 @@ import (
 	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/joho/godotenv"
+	"log"
+	"github.com/cyneptic/letsgo/controller/middleware"
 )
 
 func main() {
@@ -18,7 +20,9 @@ func main() {
 	paymentGateway := provider.NewMellatGateway()
 	srvPayment := service.NewPaymentService(redisDb, gormDb, paymentGateway)
 	e := echo.New()
-	controller.RegisterPaymentRoutes(e, *srvPayment)
+	controllers.RegisterPaymentRoutes(e, *srvPayment)
+	controllers.AddFlightRoutes(e)
+	e.Use(middleware.CustomLogger)
 
 	log.Fatal(e.Start(":8080"))
 }
