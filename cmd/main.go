@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/cyneptic/letsgo/infrastructure/provider"
 	"github.com/labstack/echo/v4"
 	"log"
 
@@ -11,11 +12,11 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load("../.env")
+	_ = godotenv.Load(".env")
 	gormDb := repositories.NewGormDatabase()
 	redisDb := repositories.RedisInit()
-
-	srvPayment := service.NewPaymentService(redisDb, gormDb)
+	paymentGateway := provider.NewMellatGateway()
+	srvPayment := service.NewPaymentService(redisDb, gormDb, paymentGateway)
 	e := echo.New()
 	controller.RegisterPaymentRoutes(e, *srvPayment)
 

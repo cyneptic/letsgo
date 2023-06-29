@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"github.com/cyneptic/letsgo/controller/validators"
 	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -25,12 +26,13 @@ func RegisterPaymentRoutes(e *echo.Echo, srv service.PaymentService) {
 }
 
 func (p *PaymentHandlers) CreatePayment(e echo.Context) error {
-	reservationId := e.QueryParam("reservation_id")
-	if reservationId == "" {
-		return echo.ErrBadRequest
+	err := validators.RequestPaymentValidator(e)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	id := e.Get("id").(string)
-	redirectLink, err := p.srv.CreateNewPayment(reservationId, id)
+	reservationId := e.QueryParam("reservation_id")
+	userId := e.Get("id").(string)
+	redirectLink, err := p.srv.CreateNewPayment(reservationId, userId)
 	if err != nil {
 		return errors.New("error")
 	}
@@ -39,15 +41,15 @@ func (p *PaymentHandlers) CreatePayment(e echo.Context) error {
 }
 
 func (p *PaymentHandlers) VerifyPayment(e echo.Context) error {
-	refID := e.FormValue("RefId")
-	paymentStatus := e.FormValue("ResCode")
-	SaleReferenceId := e.FormValue("SaleReferenceId")
-	if paymentStatus != service.SUCCESS_STATUS_CODE {
-		return http.ErrAbortHandler
+	err := validators.VerifyPaymentValidator(e)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	refID := e.FormValue("RefId")
+	SaleReferenceId := e.FormValue("SaleReferenceId")
 	reservationId := e.FormValue("SaleOrderId")
-	id := e.Get("id").(string)
-	result, err := p.srv.VerifyPayment(id, refID, reservationId, SaleReferenceId)
+	userId := e.Get("id").(string)
+	result, err := p.srv.VerifyPayment(userId, refID, reservationId, SaleReferenceId)
 	if err != nil {
 		return err
 	}
