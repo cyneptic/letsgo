@@ -32,8 +32,3 @@ func GormInit() (*gorm.DB, error) {
 	}
 	return database, nil
 }
-
-func NewGormDatabase() *PostGres {
-	db, _ := GormInit()
-	return &PostGres{db: db}
-}

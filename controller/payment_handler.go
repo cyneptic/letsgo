@@ -1,9 +1,11 @@
-package controller
+package controllers
 
 import (
 	"errors"
 	"fmt"
 	"github.com/cyneptic/letsgo/controller/validators"
+	"github.com/cyneptic/letsgo/infrastructure/provider"
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
 	"github.com/cyneptic/letsgo/internal/core/service"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -13,14 +15,18 @@ type PaymentHandlers struct {
 	srv service.PaymentService
 }
 
-func NewPaymentHandler(srv service.PaymentService) *PaymentHandlers {
+func NewPaymentHandler() *PaymentHandlers {
+	gormDb := repositories.NewGormDatabase()
+	redisDb := repositories.RedisInit()
+	paymentGateway := provider.NewMellatGateway()
+	srvPayment := service.NewPaymentService(redisDb, gormDb, paymentGateway)
 	return &PaymentHandlers{
-		srv: srv,
+		srv: *srvPayment,
 	}
 }
 
-func RegisterPaymentRoutes(e *echo.Echo, srv service.PaymentService) {
-	handler := NewPaymentHandler(srv)
+func RegisterPaymentRoutes(e *echo.Echo) {
+	handler := NewPaymentHandler()
 	e.GET("/create-payment", handler.CreatePayment)
 	e.POST("/verify-payment", handler.VerifyPayment)
 }
