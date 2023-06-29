@@ -2,16 +2,16 @@ package main
 
 import (
 	controllers "github.com/cyneptic/letsgo/controller"
-	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
-	"log"
 	"github.com/cyneptic/letsgo/controller/middleware"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"log"
 )
 
 func main() {
-	_ = repositories.NewGormDatabase()
+	_ = godotenv.Load(".env")
 	e := echo.New()
-  
+	controllers.RegisterPaymentRoutes(e)
 	controllers.AddFlightRoutes(e)
 	e.Use(middleware.CustomLogger)
 
