@@ -20,7 +20,7 @@ func NewFlightService() *FlightService {
 }
 
 // Todo Filter
-func (f *FlightService) FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat string) []entities.Flight {
+func (f *FlightService) FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat uint64) []entities.Flight {
 	flights, err := f.pv.RequestFlight(source, destination, departure)
 	if err != nil {
 		panic(err)
@@ -31,15 +31,11 @@ func (f *FlightService) FilterFlightList(source string, destination string, depa
 	var hourFilterFlight []entities.Flight
 
 	//?filter
-	if RemainSeat == "true" {
-		for _, flight := range flights {
-			if flight.RemainingSeat > 0 {
-				remainFligtlist = append(remainFligtlist, flight)
-			}
-
+	for _, flight := range flights {
+		if flight.RemainingSeat > int(RemainSeat) {
+			remainFligtlist = append(remainFligtlist, flight)
 		}
-	} else {
-		remainFligtlist = flights
+
 	}
 
 	for _, flight := range remainFligtlist {

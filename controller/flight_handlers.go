@@ -33,7 +33,7 @@ func (h *FlightHandlers) FilterFlightList(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = validators.ValidateForFilter(c.QueryParams())
+	remainSeat, err := validators.VlidateRemainSeatForFilter(c.QueryParams())
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -47,7 +47,6 @@ func (h *FlightHandlers) FilterFlightList(c echo.Context) error {
 	var destination = c.QueryParam("destination")
 	var departing = c.QueryParam("departing")
 	var planeType = c.QueryParam("planeType")
-	var remainSeat = c.QueryParam("remainSeat")
 
 	sortListed := h.srv.FilterFlightList(source, destination, departing, planeType, t1, t2, remainSeat)
 
