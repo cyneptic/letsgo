@@ -9,3 +9,4 @@
 *.test
 *.out
 go.work
+/.vscode

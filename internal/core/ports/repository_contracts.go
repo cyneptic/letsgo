@@ -17,3 +17,7 @@ type PaymentGormContract interface {
 	CreateTempTicket(reserveObj entities.Reservation, referID string) error
 	IssueATicket(refID string) error
 }
+type ReserveRepositoryContract interface {
+	FilterFlightList(userId uuid.UUID) error
+	SortFlightList(reservation entities.Reservation) error
+}
