@@ -20,7 +20,7 @@ type Flight struct {
 	FareClass     FareClass `gorm:"embedded"`       // Prices relative to age
 	Tax           int64     `json:"tax"`            // Total Price == BaseFare + Tax
 	FlightClass   string    `json:"flight_class"`   // Eco - Business - Eco+ - FirstClass
-	RemainingSeat int       `json:"remaining_seat"` // 20. Number of remaining seats
+	RemainingSeat uint      `json:"remaining_seat"` // 20. Number of remaining seats
 	CreatedAt     time.Time `json:"created_at"`
 	ModifiedAt    time.Time `json:"modified_at"`
 	DeletedAt     time.Time `json:"deleted_at"`

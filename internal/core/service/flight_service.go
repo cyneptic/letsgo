@@ -27,7 +27,7 @@ func (svc *FlightService) RequestFlight(id string) (entities.Flight, error) {
 }
 
 // Todo Filter
-func (svc *FlightService) FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat uint64) []entities.Flight {
+func (svc *FlightService) FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat uint) []entities.Flight {
 	flights, err := svc.pv.RequestFlights(source, destination, departure)
 	if err != nil {
 		panic(err)
@@ -39,7 +39,7 @@ func (svc *FlightService) FilterFlightList(source string, destination string, de
 
 	//?filter
 	for _, flight := range flights {
-		if flight.RemainingSeat > int(RemainSeat) {
+		if flight.RemainingSeat > RemainSeat {
 			remainFligtlist = append(remainFligtlist, flight)
 		}
 

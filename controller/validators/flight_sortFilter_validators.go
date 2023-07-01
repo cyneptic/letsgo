@@ -47,7 +47,7 @@ func VlidateNumberForFilter(p url.Values) (int, int, error) {
 	return t1, t2, nil
 }
 
-func VlidateRemainSeatForFilter(p url.Values) (uint64, error) {
+func VlidateRemainSeatForFilter(p url.Values) (uint, error) {
 
 	re, err := strconv.ParseUint(p.Get("remainSeat"), 10, 0)
 	if err != nil {
@@ -57,7 +57,7 @@ func VlidateRemainSeatForFilter(p url.Values) (uint64, error) {
 			return 0, fmt.Errorf("can't convert %v to int", re)
 		}
 	}
-	return re, nil
+	return uint(re), nil
 }
 
 func ValidateListFlightSortFilterParam(p url.Values) error {
