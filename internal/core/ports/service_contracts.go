@@ -10,4 +10,6 @@ type PaymentServiceContract interface {
 type FlightServiceContract interface {
 	RequestFlights(source, destination, departure string) ([]entities.Flight, error)
 	RequestFlight(id string) (entities.Flight, error)
+	FilterFlightList(source string, destination string, departure string, PlaneType string, t1 int, t2 int, RemainSeat uint) []entities.Flight
+	SortFlightList(source, destination, departure, Desc, Sortby string) []entities.Flight
 }
