@@ -16,10 +16,6 @@ var (
 	ErrReservationFailed = errors.New("Failed to make reservation, Error from provider")
 )
 
-const (
-	providerAddress = "http://localhost:8000/"
-)
-
 type ReservationProviderClient struct {
 	client  *http.Client
 	address string
@@ -34,6 +30,7 @@ func NewReservationProviderClient() *ReservationProviderClient {
 	tr := &http.Transport{}
 	cl := &http.Client{Transport: tr}
 
+	providerAddress := "http://localhost:8000/"
 	return &ReservationProviderClient{
 		client:  cl,
 		address: providerAddress,

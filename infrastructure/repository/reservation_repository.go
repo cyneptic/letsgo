@@ -7,16 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *PGRepository) CancelTicket(ticketId uuid.UUID) error {
-	var res entities.Ticket
-	q := r.DB.Model(&res).Where("id = ?", ticketId).Update("Status", "Cancelled")
-	if q.Error != nil {
-		return q.Error
-	}
-	q = r.DB.Model(&res).Where("id = ?", ticketId).Update("Status", "Cancelled")
-	return q.Error
-}
-
 func (r *PGRepository) CancelReservation(rId uuid.UUID) error {
 	var res entities.Reservation
 	q := r.DB.Model(&res).Where("id = ?", rId).Update("Cancelled", true)

@@ -2,8 +2,11 @@ package service
 
 import (
 	"errors"
+	"time"
 
-	"github.com/cyneptic/letsgo/internal/ports"
+	"github.com/cyneptic/letsgo/infrastructure/provider"
+	repositories "github.com/cyneptic/letsgo/infrastructure/repository"
+	"github.com/cyneptic/letsgo/internal/core/ports"
 	"github.com/google/uuid"
 )
 
@@ -16,7 +19,9 @@ type TicketService struct {
 	pv ports.TicketProviderContract
 }
 
-func NewTicketService(db ports.TicketRepositoryContract, pv ports.TicketProviderContract) *TicketService {
+func NewTicketService() *TicketService {
+	db := repositories.NewPGDatabase()
+	pv := provider.NewTicketProviderClient()
 	return &TicketService{
 		db: db,
 		pv: pv,
@@ -24,15 +29,13 @@ func NewTicketService(db ports.TicketRepositoryContract, pv ports.TicketProvider
 }
 
 func (svc *TicketService) IsCancellable(ticketId uuid.UUID) (bool, error) {
-	// Get Ticket (set to _ for now)
-	_, err := svc.db.GetTicketByID(ticketId)
+	ticket, err := svc.db.GetTicketByID(ticketId)
 	if err != nil {
 		return false, err
 	}
 
-	// How to do this?!
-
-	return true, nil
+	tempTime := ticket.DepartureDate.Add(10 * time.Hour) // hardcoded 10 hours, because no policy was given
+	return time.Now().Before(tempTime), nil
 }
 
 func (svc *TicketService) CancelTicket(ticketId uuid.UUID) error {

@@ -15,6 +15,6 @@ type ReserveRepositoryContract interface {
 }
 
 type TicketRepositoryContract interface {
-	GetTicketByID(ticketId uuid.UUID) (entities.Ticket, error) // Not Done
+	GetTicketByID(ticketId uuid.UUID) (entities.Ticket, error)
 	CancelTicket(ticketId uuid.UUID) error
 }

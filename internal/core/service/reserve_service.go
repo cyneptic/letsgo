@@ -22,7 +22,7 @@ type ReserveService struct {
 
 func NewReserveService() *ReserveService {
 	repo := repositories.NewPGDatabase()
-	pv := provider.NewReservationProviderClient("http://localhost:8000/flight?id=")
+	pv := provider.NewReservationProviderClient()
 	return &ReserveService{
 		db: repo,
 		pv: pv,
