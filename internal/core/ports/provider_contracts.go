@@ -14,8 +14,13 @@ type FlightProviderContract interface {
 	RequestFlights(source, destination, departure string) ([]entities.Flight, error)
 	RequestFlight(id string) (entities.Flight, error)
 }
+
 type ReserveProviderContract interface {
 	RequestFlightByID(flightId uuid.UUID) (entities.Flight, error)
 	RequestReserve(flightId uuid.UUID, count int) error
 	RequestCancelReservation(flightId uuid.UUID, count int) error
+}
+
+type TicketProviderContract interface {
+	RequestCancelTicket(flightId uuid.UUID) error
 }

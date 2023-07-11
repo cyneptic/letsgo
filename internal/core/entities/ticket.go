@@ -7,7 +7,7 @@ import (
 )
 
 type Ticket struct {
-	ID              uuid.UUID    `gorm:"primary_key;type:uuid" json:"id"` // TicketID in other tables
+	ID              uuid.UUID    `gorm:"primaryKey;type:uuid" json:"id"` // TicketID in other tables
 	FlightID        uuid.UUID    `gorm:"type:uuid;Column:flight_id" json:"flight_id"`
 	UserID          uuid.UUID    `gorm:"type:uuid;Column:user_id" json:"user_id"`
 	ReservationID   uuid.UUID    `gorm:"type:uuid;Column:order_id" json:"order_id"`

@@ -14,6 +14,7 @@ func main() {
 	e := echo.New()
 	controllers.RegisterPaymentRoutes(e)
 	controllers.AddFlightRoutes(e)
+	controllers.AddReserveRoutes(e)
 	e.Use(middleware.CustomLogger)
 	// _ = repositories.NewGormDatabase()
 

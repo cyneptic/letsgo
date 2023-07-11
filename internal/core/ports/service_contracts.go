@@ -1,6 +1,22 @@
 package ports
 
-import "github.com/cyneptic/letsgo/internal/core/entities"
+import (
+	"github.com/cyneptic/letsgo/internal/core/entities"
+	"github.com/google/uuid"
+)
+
+type ReserveServiceContract interface {
+	CancelReservation(rId uuid.UUID) error
+	GetUserReservations(userId uuid.UUID) ([]entities.Reservation, error)
+	GetAllReservations() ([]entities.Reservation, error)
+	GetReservationByID(rId uuid.UUID) (entities.Reservation, error)
+	Reserve(flightId uuid.UUID, userId uuid.UUID, passengers []uuid.UUID) (uuid.UUID, error)
+}
+
+type TicketServiceContract interface {
+	IsCancellable(ticketId uuid.UUID) (bool, error)
+	CancelTicket(ticketId uuid.UUID) error
+}
 
 type PaymentServiceContract interface {
 	CreateNewPayment(reservationId string, payerID int64) (string, error)
