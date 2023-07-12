@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/cyneptic/letsgo/internal/core/entities"
 )
 
+var flightProviderHost string
+
 const (
-	flightProviderHost     = "http://localhost:8000"
 	flightProviderEndpoint = "/flights"
 	httpTimeout            = 5 * time.Second
 )
@@ -20,6 +22,7 @@ type FlightProviderClient struct {
 }
 
 func NewFlightProviderClient() *FlightProviderClient {
+	flightProviderHost = os.Getenv("FLIGHT_PROVIDER_HOST") + ":" + os.Getenv("FLIGHT_PROVIDER_PORT")
 	tr := &http.Transport{}
 	cl := &http.Client{
 		Transport: tr,

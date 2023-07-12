@@ -20,7 +20,7 @@ type TicketService struct {
 }
 
 func NewTicketService() *TicketService {
-	db := repositories.NewPGDatabase()
+	db := repositories.NewGormDatabase()
 	pv := provider.NewTicketProviderClient()
 	return &TicketService{
 		db: db,

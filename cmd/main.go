@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	controllers "github.com/cyneptic/letsgo/controller"
 	"github.com/cyneptic/letsgo/controller/middleware"
@@ -18,5 +19,5 @@ func main() {
 	e.Use(middleware.CustomLogger)
 	// _ = repositories.NewGormDatabase()
 
-	log.Fatal(e.Start(":8080"))
+	log.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
