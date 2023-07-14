@@ -10,3 +10,5 @@
 *.out
 go.work
 /.vscode
+redis_data/
+data/

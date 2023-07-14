@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  nginx:
+    build: './nginx'
+    container_name: 'nginx'
+    restart: 'always'
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - pgdb
+
+
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - ./redis_data:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+  pgdb:
+    container_name: pgdb
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${PG_HOST}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+    expose:
+      - ${POSTGRES_PORT}
+
+  web:
+    container_name: web
+    restart: always
+    build: .
+    volumes:
+      - .:/code
+    expose:
+      - ${PORT}
+    depends_on:
+      - nginx
+
+networks:
+  main:
